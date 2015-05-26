@@ -103,20 +103,19 @@ var result = user.$$validator.validate(user);
 ```
 ###### Fields
 
-`result.firstName.notEmpty.$error` (true|false)
+`result.firstName.notEmpty.error` (true|false)
 `result.firstName.notEmpty.message` set on error
 
 ###### Arrays foreach validation
 
-`result.firstName.notEmpty.$error` (true|false)
-`result.firstName.notEmpty[0]` (error message|false)
+`result.firstName.notEmpty.error` (true|false)
+`result.firstName.notEmpty[0].error` (true|false)
+`result.firstName.notEmpty[0].message` (error message if applicable)
 
 ### TODO
-- [ ] array validation values should match the .$error .message format of normal fields
-- [ ] mebbe drop the `$` from `$error`. its never going to collide and is inconsistent with `message`
 - [ ] recursive validation
 - [ ] support returning promises from rule function
 - [ ] and perhaps some promise support for messages
 - [ ] and what the hey, promises for the when calls too! Promises! Promises!
-- [ ] message interpolation feels a bit wonky with the msgVars and the msgArgs. msgVars are extra args to pass to msgArs that are then interpolated into the message string. Smells.
+- [ ] message interpolation feels a bit wonky with the msgVars and the msgArgs. msgVars are extra args to pass to msgArs that are then interpolated into the message string.
 - [ ] Write a better readme with samples

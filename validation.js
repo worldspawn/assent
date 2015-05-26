@@ -33,27 +33,35 @@ var validation = (function () {
     },
     withMessage: function (msg, msgVars) {
       this.msg = msg;
-      if (msgVars) {
+      if (msgVars !== undefined) {
         this.msgVars = msgVars;
+      }
+
+      if(this.msg && this.msgVars) {
+        var splitMsg = this.msg.split('{|}');
+        if (splitMsg.length > 1) {
+          this.$splitMsg = splitMsg;
+          this.$args = [];
+
+          if (this.msgArgs) {
+            this.$args = this.$args.concat(this.msgArgs);
+          }
+        }
+      }
+      else {
+        delete this.$splitMsg;
+        delete this.$args;
       }
 
       return this;
     },
     getMessage: function (obj) {
       var msg = this.msg;
-      if (this.msgVars) {
-        var args = [obj];
-        if (this.msgArgs) {
-          args = args.concat(this.msgArgs);
-        }
-        var vars = this.msgVars.apply(null, args);
-        var splitMsg = msg.split('{|}')
-        if (splitMsg.length == 1){
-          return msg;
-        }
+      if (this.$splitMsg) {
+        var vars = this.msgVars.apply(null, [obj].concat(this.$args));
         var finalMsg = [];
-        for (var i = 0; i < splitMsg.length; i++) {
-          finalMsg.push(splitMsg[i]);
+        for (var i = 0; i < this.$splitMsg.length; i++) {
+          finalMsg.push(this.$splitMsg[i]);
           if (vars[i]) {
             finalMsg.push(vars[i]);
           }
@@ -69,21 +77,21 @@ var validation = (function () {
       this.runForCollection = vc;
     },
     run: function (obj, value) {
-      var result = { $error: false };
+      var result = { error: false };
       var canRun = this.canRun(obj);
       if (canRun) {
         if (value instanceof Array && !this.runForCollection) {
           result = [];
-          result.$error = false;
+          result.error = false;
 
           for(var i = 0; i < value.length; i++) {
             var isValid = this.isValid(obj, value[i]);
             if (!isValid) {
-              result.push(this.getMessage(obj) || true);
-              result.$error = true;
+              result.push({ message: this.getMessage(obj), error: true });
+              result.error = true;
             }
             else {
-              result.push(false);
+              result.push({ error: false });
             }
           }
         }
@@ -91,7 +99,7 @@ var validation = (function () {
           var isValid = this.isValid(obj, value);
           if (!isValid) {
             result.message = this.getMessage(obj);
-            result.$error = true;
+            result.error = true;
           }
         }
       }
@@ -125,8 +133,10 @@ var validation = (function () {
 
   function Validator (config) {
     this.rules = {};
-    this.$errors = {};
-    config(this);
+    this.errors = {};
+    if (config) {
+      config(this);
+    }
   }
 
   Validator.prototype = {
@@ -149,7 +159,7 @@ var validation = (function () {
         errors[target] = results;
       }
 
-      return obj.$errors = errors;
+      return obj.errors = errors;
     }
   }
 
@@ -208,11 +218,20 @@ var validation = (function () {
 
   ValidatorRule.prototype.min = function (minValue) {
     var component = new ValidatorRuleComponent('min', function (obj, value) {
+      if (value === null) {
+        return true;
+      }
+
+      if (value instanceof Array) {
+        value = value.length;
+      }
+
       if (minValue instanceof Function) {
-        return value === null || value >= minValue(obj);
+        var mv = minValue(obj);
+        return mv === undefined || value >= mv;
       }
       else {
-        return value === null || value >= minValue;
+        return value >= minValue;
       }
     });
     component.msgArgs = [minValue];
@@ -224,11 +243,20 @@ var validation = (function () {
 
   ValidatorRule.prototype.max = function (maxValue) {
     var component = new ValidatorRuleComponent('max', function (obj, value) {
+      if (value === null) {
+        return true;
+      }
+
+      if (value instanceof Array) {
+        value = value.length;
+      }
+
       if (maxValue instanceof Function) {
-        return value === null || value <= maxValue(obj);
+        var mv = maxValue(obj);
+        return mv === undefined || value >= mv;
       }
       else {
-        return value === null || value <= maxValue;
+        return value <= maxValue;
       }
     });
     component.msgArgs = [maxValue];

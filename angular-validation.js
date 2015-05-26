@@ -15,7 +15,6 @@
     return validation.ValidatorRule;
   });
 
-  //need to point a form at a model and have it read the rules, attach a validator into the angular pipeline
   module.directive('validationTarget', function () {
     return {
       restrict: 'A',
@@ -28,12 +27,12 @@
         var validator = validationScope.$$validator;
 
         if (!validator) {
-          return;
+          throw new Error('No validator found');
         }
 
         var ruleSet = validator.rules[targetField];
         if (!ruleSet) {
-          return;
+          throw new Error('No ruleset defined for ' + targetField);
         }
 
         var components = ruleSet.components;
@@ -43,7 +42,7 @@
 
           ctrl.$validators[name] = function (modelValue, viewValue) {
             var result = component.run(validationScope, viewValue);
-            return !result.$error;
+            return !result.error;
           }
         }
       }

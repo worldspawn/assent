@@ -39,6 +39,30 @@
         expect(scope.form.username.$error.notEmpty).toBeUndefined();
       }));
 
+      it('should fail to initialise if no validator is detected on the target object', inject(function($controller, $compile, $rootScope) {
+        var user = {};
+        var html = '<form name="form" novalidate><input type="text" name="username" ng-model="user.username" validation-target /></form>';
+        var form = angular.element(html);
+        var scope = $rootScope.$new();
+        scope.user = user;
+
+        expect(function () { $compile(form)(scope); }).toThrow(new Error('No validator found'));
+      }));
+
+      it('should fail to initialise if no rule is defined for the target field', inject(function($controller, $compile, $rootScope, Validator) {
+        var validator = new Validator(function (c) {
+        });
+        var Model = function (){};
+        validator.applyTo(Model);
+        var user = new Model();
+        var html = '<form name="form" novalidate><input type="text" name="username" ng-model="user.username" validation-target /></form>';
+        var form = angular.element(html);
+        var scope = $rootScope.$new();
+        scope.user = user;
+
+        expect(function () { $compile(form)(scope); }).toThrow(new Error('No ruleset defined for username'));
+      }));
+
       describe('for nested model validation', function () {
         it('should indicate line1 of the users address has failed then pass after a value is entered', inject(function ($controller, $compile, $rootScope, UserCreate) {
           var user = new UserCreate();
