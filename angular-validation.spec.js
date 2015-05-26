@@ -40,7 +40,7 @@
       }));
 
       describe('for nested model validation', function () {
-        it('should indicate line of the users address has failed then pass after a value is entered', inject(function ($controller, $compile, $rootScope, UserCreate) {
+        it('should indicate line1 of the users address has failed then pass after a value is entered', inject(function ($controller, $compile, $rootScope, UserCreate) {
           var user = new UserCreate();
           var html = '<form name="form" novalidate><input type="text" name="username" ng-model="user.username" validation-target /><input type="text" name="address.line1" ng-model="user.address.line1" validation-target /></form>';
           var form = angular.element(html);
