@@ -17,8 +17,9 @@ module.exports = function(config) {
     files: [
       'bower_components/angular/angular.js',
       'bower_components/angular-mocks/angular-mocks.js',
+      '*.spec.js',
       'validation.js',
-      '*.spec.js'
+      'angular-validation.js'
     ],
 
 
@@ -31,7 +32,8 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      'validation.js': ['coverage']
+      'validation.js': ['coverage'],
+      'angular-validation.js': ['coverage']
     },
 
 
