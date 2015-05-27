@@ -1,16 +1,15 @@
-require('../assent.js');
-
 (function () {
   'use strict';
 
   describe('validation', function () {
     describe('for a model', function () {
       var UserCreate, Address;
+      var resources = createResources();
 
       beforeEach(function () {
         //not using this in this spec... validator probably needs a way to recursively validate its fields if they have their own validator
-        Address = global.addressConstructorFactory(validation.Validator);
-        UserCreate = global.userConstructorFactory(validation.Validator, Address);
+        Address = resources.addressConstructorFactory(validation.Validator);
+        UserCreate = resources.userConstructorFactory(validation.Validator, Address);
       });
 
       describe('collection validation', function () {
@@ -202,7 +201,7 @@ require('../assent.js');
         });
 
         it ('should pass when compared with a constant that matches', function () {
-          var UC = global.userConstructorFactory(validation.Validator, Address)
+          var UC = resources.userConstructorFactory(validation.Validator, Address)
           UC.prototype.$$validator.ruleFor('passwordConfirmation', function (f) {
             f.matches('password')
               .withMessage('password confirmation must match password');
@@ -217,7 +216,7 @@ require('../assent.js');
         });
 
         it ('should fail when compared with a constant that does not match', function () {
-          var UC = global.userConstructorFactory(validation.Validator, Address)
+          var UC = resources.userConstructorFactory(validation.Validator, Address)
           UC.prototype.$$validator.ruleFor('passwordConfirmation', function (f) {
             f.matches('password')
               .withMessage('password confirmation must match password');

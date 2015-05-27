@@ -1,3 +1,4 @@
+var validation =
 (function () {
   'use strict';
 
@@ -266,9 +267,11 @@
     return component;
   };
 
-  global.validation = {
+  return {
     Validator : Validator,
     ValidatorRule: ValidatorRule,
     ValidatorRuleComponent: ValidatorRuleComponent
   };
 })();
+
+console.log(validation);
