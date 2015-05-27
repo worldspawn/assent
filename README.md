@@ -1,14 +1,10 @@
-# Validation
-(I'm working on the name)
+# Assent
 
-This is inspired heavily by the c# fluent validation library.
+This is inspired heavily by the c# [Fluent Validation](https://github.com/JeremySkinner/FluentValidation) library. 
 
-``` html
-<form name="form" novalidate>
-  <input type="text" name="username" ng-model="user.username" validation-target />
-  <input type="text" name="address.line1" ng-model="user.address.line1" validation-target />
-</form>
-```
+## Usage
+
+### Defining models and their validators
 
 ``` js
 function Address() {
@@ -25,6 +21,8 @@ var addressValidator = new Validator(function (c) {
 
 addressValidator.applyTo(Address);
 ```
+
+`addressValidator.applyTo(Address);` sets the validator to `Address`'s prototype.
 
 ``` js
 function UserCreate() {
@@ -97,20 +95,31 @@ var userValidator = new Validator(function (c) {
 userValidator.applyTo(UserCreate);
 ```
 
+### Validating and instance of your model
+
 ``` js
 var user = new UserCreate();
 var result = user.$$validator.validate(user);
 ```
-###### Fields
+
+### Format of the validation result object
+
+#### For Fields
 
 `result.firstName.notEmpty.error` (true|false)
 `result.firstName.notEmpty.message` set on error
 
-###### Arrays foreach validation
+###### For Arrays using foreach validation
+
+This is for when `validationCollection` is not called, it will validate each element in the array rather than the array itself. The default behaviour is to validate the array.
 
 `result.firstName.notEmpty.error` (true|false)
 `result.firstName.notEmpty[0].error` (true|false)
 `result.firstName.notEmpty[0].message` (error message if applicable)
+
+## Integration
+
+[Angular](https://github.com/worldspawn/angular-assent)
 
 ### TODO
 - [ ] recursive validation
@@ -119,4 +128,3 @@ var result = user.$$validator.validate(user);
 - [ ] and what the hey, promises for the when calls too! Promises! Promises!
 - [ ] message interpolation feels a bit wonky with the msgVars and the msgArgs. msgVars are extra args to pass to msgArs that are then interpolated into the message string.
 - [ ] Write a better readme with samples
-- [ ] split this repo into just validation then angular-validation
