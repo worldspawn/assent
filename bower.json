@@ -1,7 +1,7 @@
 {
   "name": "angular-assent",
   "main": "assent.js",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "authors": [
     "sam.critchley <critchley.sj@gmail.com>"
   ],
@@ -15,8 +15,6 @@
     "test",
     "tests"
   ],
-  "dependencies": {
-  },
-  "devDependencies": {
-  }
+  "dependencies": {},
+  "devDependencies": {}
 }
