@@ -273,5 +273,3 @@ var validation =
     ValidatorRuleComponent: ValidatorRuleComponent
   };
 })();
-
-console.log(validation);
