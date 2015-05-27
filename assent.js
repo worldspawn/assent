@@ -1,4 +1,4 @@
-var validation = (function () {
+(function () {
   'use strict';
 
   function ValidatorRuleComponent(name, rule) { //function (obj, value) - return bool
@@ -266,9 +266,9 @@ var validation = (function () {
     return component;
   };
 
-  return  {
+  global.validation = {
     Validator : Validator,
     ValidatorRule: ValidatorRule,
     ValidatorRuleComponent: ValidatorRuleComponent
-  }
+  };
 })();

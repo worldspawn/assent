@@ -1,15 +1,16 @@
+require('../assent.js');
+
 (function () {
   'use strict';
 
   describe('validation', function () {
     describe('for a model', function () {
-      var resources = createResources();
       var UserCreate, Address;
 
       beforeEach(function () {
         //not using this in this spec... validator probably needs a way to recursively validate its fields if they have their own validator
-        Address = resources.addressConstructorFactory(validation.Validator);
-        UserCreate = resources.userConstructorFactory(validation.Validator, Address);
+        Address = global.addressConstructorFactory(validation.Validator);
+        UserCreate = global.userConstructorFactory(validation.Validator, Address);
       });
 
       describe('collection validation', function () {
@@ -67,8 +68,8 @@
 
             expect(result).not.toBeUndefined();
             expect(result.categories.notEmpty.error).toBe(true);
-            expect(result.categories.notEmpty[0]).toMatch({ message: 'category cannot be blank', error: true});
-            expect(result.categories.notEmpty[1]).toMatch({ error: false });
+            expect(result.categories.notEmpty[0]).toEqual({ message: 'category cannot be blank', error: true});
+            expect(result.categories.notEmpty[1]).toEqual({ error: false });
           });
         });
       });
@@ -201,7 +202,7 @@
         });
 
         it ('should pass when compared with a constant that matches', function () {
-          var UC = resources.userConstructorFactory(validation.Validator, Address)
+          var UC = global.userConstructorFactory(validation.Validator, Address)
           UC.prototype.$$validator.ruleFor('passwordConfirmation', function (f) {
             f.matches('password')
               .withMessage('password confirmation must match password');
@@ -216,7 +217,7 @@
         });
 
         it ('should fail when compared with a constant that does not match', function () {
-          var UC = resources.userConstructorFactory(validation.Validator, Address)
+          var UC = global.userConstructorFactory(validation.Validator, Address)
           UC.prototype.$$validator.ruleFor('passwordConfirmation', function (f) {
             f.matches('password')
               .withMessage('password confirmation must match password');

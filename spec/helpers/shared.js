@@ -1,4 +1,4 @@
-function createResources() {
+(function createResources() {
   'use strict';
 
   function addressConstructorFactory (Validator) {
@@ -90,14 +90,6 @@ function createResources() {
     return UserCreate;
   }
 
-  // beforeEach(function () {
-  //   var m = angular.module('validation');
-  //   m.factory('UserCreate', userConstructorFactory);
-  //   m.factory('Address', addressConstructorFactory);
-  // });
-
-  return {
-    addressConstructorFactory: addressConstructorFactory,
-    userConstructorFactory: userConstructorFactory
-  };
-}
+  global.addressConstructorFactory = addressConstructorFactory;
+  global.userConstructorFactory = userConstructorFactory;
+})();

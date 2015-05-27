@@ -1,13 +1,13 @@
 {
-  "name": "validation",
-  "main": "validation.js",
-  "version": "0.0.0",
+  "name": "angular-assent",
+  "main": "assent.js",
+  "version": "0.0.1",
   "authors": [
-    "sam.critchley <sam.critchley@kiandra.com.au>"
+    "sam.critchley <critchley.sj@gmail.com>"
   ],
   "description": "validation js library",
   "license": "MIT",
-  "private": true,
+  "private": false,
   "ignore": [
     "**/.*",
     "node_modules",
@@ -16,9 +16,7 @@
     "tests"
   ],
   "dependencies": {
-    "angular": "~1.3.15"
   },
   "devDependencies": {
-    "angular-mocks": "~1.3.15"
   }
 }

@@ -119,3 +119,4 @@ var result = user.$$validator.validate(user);
 - [ ] and what the hey, promises for the when calls too! Promises! Promises!
 - [ ] message interpolation feels a bit wonky with the msgVars and the msgArgs. msgVars are extra args to pass to msgArs that are then interpolated into the message string.
 - [ ] Write a better readme with samples
+- [ ] split this repo into just validation then angular-validation
