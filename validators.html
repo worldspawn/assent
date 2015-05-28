@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Assent by worldspawn</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Assent</h1>
+      <h2 class="project-tagline">A javascript library for validating models (objects)</h2>
+      <a href="index.html" class="btn">Home</a>
+    </section>
+
+    <section class="main-content">
+      <h3>Validators</h3>
+
+<p>Below is a list of validators with examples of use.</p>
+<p>All validators support providing a function as the rule comparison value. The function will get the object being validated as its only argument. <code>function (obj) {}</code></p>
+<p>If the comparison value is a Date then Assent will attempt to convert the model value to a Date, if it fails to convert the validator will pass</p>
+
+<h4><a id="notEmpty" class="anchor" href="#notEmpty" aria-hidden="true"><span class="octicon octicon-link"></span></a>notEmpty</h4>
+
+<p><code>notEmpty</code> can target text fields and array fields. It will fail for null, undefined or empty string values and zero length arrays.</p>
+
+<pre><code>c.ruleFor('username', function (f) {
+  f.notEmpty()
+    .withMessage('username is required');
+});</code></pre>
+
+<h4><a id="email" class="anchor" href="#notEmpty" aria-hidden="true"><span class="octicon octicon-link"></span></a>email</h4>
+
+<p><code>email</code> can target text fields. It performs a basic check for a <code>email@domain</code> style value.</p>
+
+<pre><code>c.ruleFor('email', function (f) {
+  f.email()
+    .withMessage('must be a valid email');
+});</code></pre>
+
+<h4><a id="minLength" class="anchor" href="#minLength" aria-hidden="true"><span class="octicon octicon-link"></span></a>minLength</h4>
+
+<p><code>minLength</code> can target text fields and array fields. It will fail for string values that are shorter than the specified minimum length or arrays that contain less items that the specified minimum length.</p>
+
+<pre><code>c.ruleFor('password', function (f) {
+  f.minLength(20)
+    .withMessage('password must be at least {|} characters long');
+});</code></pre>
+
+<p>The message is automatically provided the specified minimum length as an interpolation argument for the message.</p>
+
+<h4><a id="maxLength" class="anchor" href="#maxLength" aria-hidden="true"><span class="octicon octicon-link"></span></a>maxLength</h4>
+
+<p><code>maxLength</code> can target text fields and array fields. It will fail for string values that are longer than the specified maximum length or arrays that contain more items that the specified maximum length.</p>
+
+<pre><code>c.ruleFor('firstName', function (f) {
+  f.maxLength(50)
+    .withMessage('firstName must be at most {|} characters long');
+});</code></pre>
+
+<p>The message is automatically provided the specified maximum length as an interpolation argument for the message.</p>
+
+<h4><a id="min" class="anchor" href="#min" aria-hidden="true"><span class="octicon octicon-link"></span></a>min</h4>
+
+<p><code>min</code> can target number fields or array fields. It will fail for numeric values that are less than the specified minimum or arrays that contain less items that the specified minimum.</p>
+
+<pre><code>c.ruleFor('age', function (f) {
+  f.min(18)
+    .withMessage('You must be at least {|} years old.');
+});</code></pre>
+
+<p>The message is automatically provided the specified minimum as an interpolation argument for the message.</p>
+
+<h4><a id="max" class="anchor" href="#max" aria-hidden="true"><span class="octicon octicon-link"></span></a>max</h4>
+
+<p><code>max</code> can target number fields or array fields. It will fail for numeric values that are more than the specified maximum or arrays that contain more items that the specified minimum.</p>
+
+<pre><code>c.ruleFor('age', function (f) {
+  f.max(60)
+    .withMessage('You must be no more than {|} years old to ride the gravitron.');
+});</code></pre>
+
+<p>The message is automatically provided the specified maximum as an interpolation argument for the message.</p>
+
+<h4><a id="matches" class="anchor" href="#matches" aria-hidden="true"><span class="octicon octicon-link"></span></a>matches</h4>
+
+<p><code>matches</code> can target value fields. It will fail when the field contains a value (not null) and it does not match the provided comparison value.</p>
+
+<pre><code>c.ruleFor('password', function (f) {
+  f.matches('secretpassword')
+    .withMessage('Your password must be \'secret password\'.');
+});</code></pre>
+
+<p>A more useful scenario is to compare to the value of another field</p>
+
+<pre><code>c.ruleFor('passwordComparison', function (f) {
+  f.matches(function (obj) { return obj.password; })
+    .withMessage('Confirm password must match the password');
+});</code></pre>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/worldspawn/assent">Assent</a> is maintained by <a href="https://github.com/worldspawn">worldspawn</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+
+  </body>
+</html>
