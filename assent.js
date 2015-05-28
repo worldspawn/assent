@@ -148,6 +148,9 @@ var validation =
     },
     applyTo: function (constructor) {
       constructor.prototype.$$validator = this;
+      constructor.prototype.$validate = function () {
+        return this.$$validator.validate(this);
+      }
     },
     validate: function (obj) {
       var errors = {};

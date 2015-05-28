@@ -1,6 +1,10 @@
 # Assent
 
-This is inspired heavily by the c# [Fluent Validation](https://github.com/JeremySkinner/FluentValidation) library. 
+This is inspired heavily by the c# [Fluent Validation](https://github.com/JeremySkinner/FluentValidation) library.
+
+## Install
+
+`bower install assent`
 
 ## Usage
 
@@ -99,7 +103,7 @@ userValidator.applyTo(UserCreate);
 
 ``` js
 var user = new UserCreate();
-var result = user.$$validator.validate(user);
+var result = user.$validate();
 ```
 
 ### Format of the validation result object

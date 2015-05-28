@@ -16,7 +16,7 @@
         describe('where entire collection is validated as one', function () {
           it ('should fail when tags is an empty array', function () {
             var user = new UserCreate();
-            var result = user.$$validator.validate(user);
+            var result = user.$validate(user);
 
             expect(result).not.toBeUndefined();
             expect(result.tags.notEmpty.error).toBe(true);
@@ -25,7 +25,7 @@
           it ('should pass when tags array contains an item', function () {
             var user = new UserCreate();
             user.tags.push('test');
-            var result = user.$$validator.validate(user);
+            var result = user.$validate(user);
 
             expect(result).not.toBeUndefined();
             expect(result.tags.notEmpty.error).toBe(false);
@@ -35,7 +35,7 @@
         describe('where each collection item is validated', function () {
           it ('should pass when categories array is empty', function () {
             var user = new UserCreate();
-            var result = user.$$validator.validate(user);
+            var result = user.$validate();
 
             expect(result).not.toBeUndefined();
             expect(result.categories.notEmpty.error).toBe(false);
@@ -44,7 +44,7 @@
           it ('should fail when categories array contains a blank item', function () {
             var user = new UserCreate();
             user.categories.push('');
-            var result = user.$$validator.validate(user);
+            var result = user.$validate();
 
             expect(result).not.toBeUndefined();
             expect(result.categories.notEmpty.error).toBe(true);
@@ -53,7 +53,7 @@
           it ('should pass when categories array contains a non-blank item', function () {
             var user = new UserCreate();
             user.categories.push('test');
-            var result = user.$$validator.validate(user);
+            var result = user.$validate();
 
             expect(result).not.toBeUndefined();
             expect(result.categories.notEmpty.error).toBe(false);
@@ -63,7 +63,7 @@
             var user = new UserCreate();
             user.categories.push('');
             user.categories.push('test');
-            var result = user.$$validator.validate(user);
+            var result = user.$validate();
 
             expect(result).not.toBeUndefined();
             expect(result.categories.notEmpty.error).toBe(true);
@@ -76,7 +76,7 @@
       describe('validator constraints', function () {
         it ('should fail age validation when dob is null and age is null', function () {
           var user = new UserCreate();
-          var result = user.$$validator.validate(user);
+          var result = user.$validate();
 
           expect(result).not.toBeUndefined();
           expect(result.age.notEmpty.error).toBe(true);
@@ -85,7 +85,7 @@
         it ('should pass age validation when dob is not null but age is null', function () {
           var user = new UserCreate();
           user.dob = new Date();
-          var result = user.$$validator.validate(user);
+          var result = user.$validate();
 
           expect(result).not.toBeUndefined();
           expect(result.age.notEmpty.error).toBe(false);
@@ -95,7 +95,7 @@
       describe('empty validation', function () {
         it ('should fail when username is empty', function () {
           var user = new UserCreate();
-          var result = user.$$validator.validate(user);
+          var result = user.$validate();
 
           expect(result).not.toBeUndefined();
           expect(result.username.notEmpty.error).toBe(true);
@@ -104,7 +104,7 @@
         it ('should pass when username is not empty', function () {
           var user = new UserCreate();
           user.username = 'testuser';
-          var result = user.$$validator.validate(user);
+          var result = user.$validate();
 
           expect(result).not.toBeUndefined();
           expect(result.username.notEmpty.error).toBe(false);
@@ -112,7 +112,7 @@
 
         it ('should return the correct error message on fail', function () {
           var user = new UserCreate();
-          var result = user.$$validator.validate(user);
+          var result = user.$validate();
 
           expect(result).not.toBeUndefined();
           expect(result.username.notEmpty.message).toBe('username is required');
@@ -132,7 +132,7 @@
         it ('should fail when firstName length is greater than 20', function () {
           var user = new UserCreate();
           user.firstName = 'test test test test test test ';
-          var result = user.$$validator.validate(user);
+          var result = user.$validate();
 
           expect(result).not.toBeUndefined();
           expect(result.firstName.maxLength.error).toBe(true);
@@ -144,7 +144,7 @@
         it ('should pass when firstName length is equal to 10', function () {
           var user = new UserCreate();
           user.firstName = 'test test ';
-          var result = user.$$validator.validate(user);
+          var result = user.$validate();
 
           expect(result).not.toBeUndefined();
           expect(result.firstName.minLength.error).toBe(false);
@@ -153,7 +153,7 @@
         it ('should pass when firstName length is less than 10', function () {
           var user = new UserCreate();
           user.firstName = 'test';
-          var result = user.$$validator.validate(user);
+          var result = user.$validate();
 
           expect(result).not.toBeUndefined();
           expect(result.firstName.minLength.error).toBe(true);
@@ -164,7 +164,7 @@
       describe ('matches validation', function () {
         it ('should pass when passwordConfirmation is null', function () {
           var user = new UserCreate();
-          var result = user.$$validator.validate(user);
+          var result = user.$validate();
 
           expect(result).not.toBeUndefined();
           expect(result.passwordConfirmation.matches.error).toBe(false);
@@ -174,7 +174,7 @@
           var user = new UserCreate();
           user.password = 'password';
           user.passwordConfirmation = 'password';
-          var result = user.$$validator.validate(user);
+          var result = user.$validate();
 
           expect(result).not.toBeUndefined();
           expect(result.passwordConfirmation.matches.error).toBe(false);
@@ -184,7 +184,7 @@
           var user = new UserCreate();
           user.password = 'password';
           user.passwordConfirmation = 'pass--word';
-          var result = user.$$validator.validate(user);
+          var result = user.$validate();
 
           expect(result).not.toBeUndefined();
           expect(result.passwordConfirmation.matches.error).toBe(true);
@@ -194,7 +194,7 @@
           var user = new UserCreate();
           user.password = 'password';
           user.passwordConfirmation = 'pass--word';
-          var result = user.$$validator.validate(user);
+          var result = user.$validate();
 
           expect(result).not.toBeUndefined();
           expect(result.passwordConfirmation.matches.message).toBe('password confirmation must match password');
@@ -209,7 +209,7 @@
 
           var user = new UC();
           user.passwordConfirmation = 'password';
-          var result = user.$$validator.validate(user);
+          var result = user.$validate();
 
           expect(result).not.toBeUndefined();
           expect(result.passwordConfirmation.matches.error).toBe(false);
@@ -224,7 +224,7 @@
 
           var user = new UC();
           user.passwordConfirmation = 'pass--word';
-          var result = user.$$validator.validate(user);
+          var result = user.$validate();
 
           expect(result).not.toBeUndefined();
           expect(result.passwordConfirmation.matches.error).toBe(true);
@@ -234,7 +234,7 @@
       describe ('min validation', function () {
         it ('should not fail age min validation when age is null', function () {
           var user = new UserCreate();
-          var result = user.$$validator.validate(user);
+          var result = user.$validate();
 
           expect(result).not.toBeUndefined();
           expect(result.age.min.error).toBe(false);
@@ -243,7 +243,7 @@
         it ('should fail age min validation when age is below 18', function () {
           var user = new UserCreate();
           user.age = 15;
-          var result = user.$$validator.validate(user);
+          var result = user.$validate();
 
           expect(result).not.toBeUndefined();
           expect(result.age.min.error).toBe(true);
@@ -253,7 +253,7 @@
         it ('should pass age min validation when age is above 18', function () {
           var user = new UserCreate();
           user.age = 20;
-          var result = user.$$validator.validate(user);
+          var result = user.$validate();
 
           expect(result).not.toBeUndefined();
           expect(result.age.min.error).toBe(false);
@@ -263,7 +263,7 @@
       describe ('max validation', function () {
         it ('should not fail age max validation when age is null', function () {
           var user = new UserCreate();
-          var result = user.$$validator.validate(user);
+          var result = user.$validate();
 
           expect(result).not.toBeUndefined();
           expect(result.age.max.error).toBe(false);
@@ -272,7 +272,7 @@
         it ('should fail age max validation when age is above 80', function () {
           var user = new UserCreate();
           user.age = 85;
-          var result = user.$$validator.validate(user);
+          var result = user.$validate();
 
           expect(result).not.toBeUndefined();
           expect(result.age.max.error).toBe(true);
@@ -282,7 +282,7 @@
         it ('should pass age min validation when age is below 80', function () {
           var user = new UserCreate();
           user.age = 20;
-          var result = user.$$validator.validate(user);
+          var result = user.$validate();
 
           expect(result).not.toBeUndefined();
           expect(result.age.max.error).toBe(false);
