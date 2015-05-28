@@ -1,4 +1,5 @@
-var validation =
+/* global window */
+(global || window).validation =
 (function () {
   'use strict';
 
@@ -38,7 +39,7 @@ var validation =
         this.msgVars = msgVars;
       }
 
-      if(this.msg && this.msgVars) {
+      if (this.msg && this.msgVars) {
         var splitMsg = this.msg.split('{|}');
         if (splitMsg.length > 1) {
           this.$splitMsg = splitMsg;
@@ -80,13 +81,14 @@ var validation =
     run: function (obj, value) {
       var result = { error: false };
       var canRun = this.canRun(obj);
+      var isValid;
       if (canRun) {
         if (value instanceof Array && !this.runForCollection) {
           result = [];
           result.error = false;
 
           for(var i = 0; i < value.length; i++) {
-            var isValid = this.isValid(obj, value[i]);
+            isValid = this.isValid(obj, value[i]);
             if (!isValid) {
               result.push({ message: this.getMessage(obj), error: true });
               result.error = true;
@@ -97,7 +99,7 @@ var validation =
           }
         }
         else{
-          var isValid = this.isValid(obj, value);
+          isValid = this.isValid(obj, value);
           if (!isValid) {
             result.message = this.getMessage(obj);
             result.error = true;
@@ -107,7 +109,7 @@ var validation =
 
       return result;
     }
-  }
+  };
 
   function ValidatorRule() {
     this.components = [];
@@ -130,7 +132,7 @@ var validation =
 
       return results;
     }
-  }
+  };
 
   function Validator (config) {
     this.rules = {};
@@ -150,7 +152,7 @@ var validation =
       constructor.prototype.$$validator = this;
       constructor.prototype.$validate = function () {
         return this.$$validator.validate(this);
-      }
+      };
     },
     validate: function (obj) {
       var errors = {};
@@ -163,9 +165,10 @@ var validation =
         errors[target] = results;
       }
 
-      return obj.errors = errors;
+      obj.$errors = errors;
+      return obj.$errors;
     }
-  }
+  };
 
   ValidatorRule.prototype.notEmpty = function () {
     var component = new ValidatorRuleComponent('notEmpty', function (obj, value) {
@@ -173,7 +176,7 @@ var validation =
         return value !== null && value.length > 0;
       }
       else {
-        return value !== null && value != '';
+        return value !== null && value !== '';
       }
     });
 
@@ -186,7 +189,7 @@ var validation =
       return value === null || value.length >= minLength;
     });
     component.msgArgs = [minLength];
-    component.msgVars = function (obj) { return [minLength]; };
+    component.msgVars = function () { return [minLength]; };
 
     this.addComponent(component);
     return component;
@@ -197,7 +200,7 @@ var validation =
       return value === null || value.length <= maxLength;
     });
     component.msgArgs = [maxLength];
-    component.msgVars = function (obj) { return [maxLength]; };
+    component.msgVars = function () { return [maxLength]; };
 
     this.addComponent(component);
     return component;
