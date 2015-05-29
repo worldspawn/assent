@@ -120,6 +120,34 @@
         });
       });
 
+      describe ('regex validation', function () {
+        it ('should pass when notes is valid', function () {
+          var user = new UserCreate();
+          user.notes = 'the quick brown test jumped over the fence';
+          var result = user.$validate(user);
+
+          expect(result).not.toBeUndefined();
+          expect(result.notes.value.error).toBe(false);
+        });
+
+        it ('should pass when notes is not valid', function () {
+          var user = new UserCreate();
+          user.notes = 'the quick brown fox jumped over the fence';
+          var result = user.$validate(user);
+
+          expect(result).not.toBeUndefined();
+          expect(result.notes.value.error).toBe(true);
+        });
+
+        it ('should pass when notes is null', function () {
+          var user = new UserCreate();
+          var result = user.$validate(user);
+
+          expect(result).not.toBeUndefined();
+          expect(result.notes.value.error).toBe(false);
+        });
+      });
+
       describe ('email validation', function () {
         it ('should pass when email is valid', function () {
           var user = new UserCreate();

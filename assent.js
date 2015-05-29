@@ -245,6 +245,15 @@ var validation =
     return component;
   };
 
+  ValidatorRule.prototype.regex = function (rex, name) {
+    var component = new ValidatorRuleComponent(name, function (obj, value) {
+      return rex.test(value);
+    }, { passOnNull: true });
+
+    this.addComponent(component);
+    return component;
+  };
+
   ValidatorRule.prototype.minLength = function (minLength) {
     var component = new ValidatorRuleComponent('minLength', function (obj, modelValue, compareValue) {
       if (typeof modelValue === 'string'){

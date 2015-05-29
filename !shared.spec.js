@@ -31,6 +31,7 @@ function createResources() {
       this.address = new Address();
       this.tags = [];
       this.categories = [];
+      this.notes = null;
     }
 
     var userValidator = new Validator(function (c) {
@@ -97,6 +98,11 @@ function createResources() {
           .withMessage('category cannot be blank')
           .validateCollection();
       });
+
+      c.ruleFor('notes', function (f) {
+        f.regex(/test/, 'value')
+          .withMessage('Notes must contain the word \'test\'');
+      })
     });
 
     userValidator.applyTo(UserCreate);
