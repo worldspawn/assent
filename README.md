@@ -86,13 +86,13 @@ var userValidator = new Validator(function (c) {
 
   c.ruleFor('tags', function (f) {
     f.notEmpty()
-      .withMessage('you must provide at least one tag')
-      .validateCollection();
+      .withMessage('you must provide at least one tag');
   });
 
   c.ruleFor('categories', function (f) {
     f.notEmpty()
-      .withMessage('category cannot be blank');
+      .withMessage('category cannot be blank')
+      .validateCollection();
   });
 });
 
@@ -131,4 +131,3 @@ This is for when `validationCollection` is not called, it will validate each ele
 - [ ] and perhaps some promise support for messages
 - [ ] and what the hey, promises for the when calls too! Promises! Promises!
 - [ ] message interpolation feels a bit wonky with the msgVars and the msgArgs. msgVars are extra args to pass to msgArs that are then interpolated into the message string.
-- [ ] Write a better readme with samples
