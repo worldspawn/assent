@@ -102,7 +102,7 @@ function createResources() {
       c.ruleFor('notes', function (f) {
         f.regex(/test/, 'value')
           .withMessage('Notes must contain the word \'test\'');
-      })
+      });
     });
 
     userValidator.applyTo(UserCreate);
