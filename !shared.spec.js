@@ -20,6 +20,7 @@ function createResources() {
 
   function userConstructorFactory (Validator, Address) {
     function UserCreate() {
+      this.email = null;
       this.username = null;
       this.firstName = null;
       this.lastName = null;
@@ -66,6 +67,11 @@ function createResources() {
           .withMessage('User must be born after or on 1950');
         f.max(new Date(Date.parse('2000-01-01T00:00:00.00Z')))
             .withMessage('User must be born before or on 2000');
+      });
+
+      c.ruleFor('email', function (f) {
+        f.email()
+          .withMessage('not a valid email');
       });
 
       c.ruleFor('password', function (f) {

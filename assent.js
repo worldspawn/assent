@@ -16,6 +16,9 @@ var validation =
   ValidatorRuleComponent.prototype = {
     getCompareValue: function (obj) {
       var value = this.compareValue;
+      if (value === undefined) {
+        return undefined;
+      }
       var isDate = false;
 
       if (value instanceof Function) {
@@ -70,8 +73,13 @@ var validation =
     },
     isValid: function (obj, value) {
       var compareValue = this.getCompareValue(obj);
-      if (this.passOnNull && (compareValue.value === null || compareValue.value === undefined)) {
-        return true;
+      if (compareValue === undefined) {
+        compareValue = { value: null, isDate: false };
+      }
+      else {
+        if (this.passOnNull && (compareValue.value === null || compareValue.value === undefined)) {
+          return true;
+        }
       }
 
       var modelValue = this.resolveModelValue(value, compareValue.isDate);
@@ -222,6 +230,16 @@ var validation =
     var component = new ValidatorRuleComponent('notEmpty', function (obj, value) {
       return value !== null && value !== 0 && value !== '';
     }, { passOnNull: false, convertArrayToLength: true });
+
+    this.addComponent(component);
+    return component;
+  };
+
+  ValidatorRule.prototype.email = function () {
+    var rex = /^\S+@\S+\.\S+$/;//very basic email validation
+    var component = new ValidatorRuleComponent('email', function (obj, value) {
+      return rex.test(value);
+    }, { passOnNull: true });
 
     this.addComponent(component);
     return component;

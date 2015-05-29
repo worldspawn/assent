@@ -120,11 +120,39 @@
         });
       });
 
+      describe ('email validation', function () {
+        it ('should pass when email is valid', function () {
+          var user = new UserCreate();
+          user.email = 'test@test.com';
+          var result = user.$validate(user);
+
+          expect(result).not.toBeUndefined();
+          expect(result.email.email.error).toBe(false);
+        });
+
+        it ('should pass when email is null', function () {
+          var user = new UserCreate();
+          var result = user.$validate(user);
+
+          expect(result).not.toBeUndefined();
+          expect(result.email.email.error).toBe(false);
+        });
+
+        it ('should fail when email is valid', function () {
+          var user = new UserCreate();
+          user.email = 'test.com';
+          var result = user.$validate(user);
+
+          expect(result).not.toBeUndefined();
+          expect(result.email.email.error).toBe(true);
+        });
+      });
+
       describe ('maxLength validation', function () {
         it ('should pass when firstName length is less than 20', function () {
           var user = new UserCreate();
           user.firstName = 'test';
-          var result = user.$$validator.validate(user);
+          var result = user.$validate();
 
           expect(result).not.toBeUndefined();
           expect(result.firstName.maxLength.error).toBe(false);
