@@ -1,5 +1,6 @@
 (function () {
   'use strict';
+  /* global describe, createResources, beforeEach, validation, it, expect */
 
   describe('validation', function () {
     describe('for a model', function () {
@@ -201,7 +202,7 @@
         });
 
         it ('should pass when compared with a constant that matches', function () {
-          var UC = resources.userConstructorFactory(validation.Validator, Address)
+          var UC = resources.userConstructorFactory(validation.Validator, Address);
           UC.prototype.$$validator.ruleFor('passwordConfirmation', function (f) {
             f.matches('password')
               .withMessage('password confirmation must match password');
@@ -216,7 +217,7 @@
         });
 
         it ('should fail when compared with a constant that does not match', function () {
-          var UC = resources.userConstructorFactory(validation.Validator, Address)
+          var UC = resources.userConstructorFactory(validation.Validator, Address);
           UC.prototype.$$validator.ruleFor('passwordConfirmation', function (f) {
             f.matches('password')
               .withMessage('password confirmation must match password');
@@ -258,6 +259,24 @@
           expect(result).not.toBeUndefined();
           expect(result.age.min.error).toBe(false);
         });
+
+        it ('should work with Dates and pass when value is greater than min', function () {
+          var user = new UserCreate();
+          user.dob = '2000-01-01';
+          var result = user.$validate();
+
+          expect(result).not.toBeUndefined();
+          expect(result.dob.min.error).toBe(false);
+        });
+
+        it ('should work with Dates and fail when value is less than min', function () {
+          var user = new UserCreate();
+          user.dob = '1949-01-01';
+          var result = user.$validate();
+
+          expect(result).not.toBeUndefined();
+          expect(result.dob.min.error).toBe(true);
+        });
       });
 
       describe ('max validation', function () {
@@ -286,6 +305,24 @@
 
           expect(result).not.toBeUndefined();
           expect(result.age.max.error).toBe(false);
+        });
+
+        it ('should work with Dates and pass when value is less than max', function () {
+          var user = new UserCreate();
+          user.dob = '1999-12-30';
+          var result = user.$validate();
+
+          expect(result).not.toBeUndefined();
+          expect(result.dob.max.error).toBe(false);
+        });
+
+        it ('should work with Dates and fail when value is greater than nax', function () {
+          var user = new UserCreate();
+          user.dob = '2000-01-02';
+          var result = user.$validate();
+
+          expect(result).not.toBeUndefined();
+          expect(result.dob.max.error).toBe(true);
         });
       });
     });

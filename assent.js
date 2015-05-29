@@ -1,16 +1,54 @@
-/* global window */
-(global || window).validation =
+var validation =
 (function () {
   'use strict';
 
-  function ValidatorRuleComponent(name, rule) { //function (obj, value) - return bool
-    this.runForCollection = false;
+  function ValidatorRuleComponent(name, rule, options) { //function (obj, value) - return bool
+    options = options || {};
+    this.passOnNull = options.passOnNull === undefined ? true : options.passOnNull;
+    this.runForEachItem = false;
+    this.compareValue = options.compareValue;
+    this.convertArrayToLength = options.convertArrayToLength === undefined ? false : options.convertArrayToLength;
     this.name = name;
     this.rule = rule;
     this.constraints = [];// function(obj) - return bool
   }
 
   ValidatorRuleComponent.prototype = {
+    getCompareValue: function (obj) {
+      var value = this.compareValue;
+      var isDate = false;
+
+      if (value instanceof Function) {
+        value = value(obj);
+      }
+
+      if (value instanceof Date) {
+        value = value.valueOf();
+        isDate = true;
+      }
+
+      return { value: value, isDate: isDate };
+    },
+    resolveModelValue: function (modelValue, isDate) {
+      if (!this.runForEachItem && this.convertArrayToLength && modelValue instanceof Array) {
+        return modelValue.length;
+      }
+
+      if (isDate) {
+        if (!(modelValue instanceof Date))
+        {
+          var x = Date.parse(modelValue);
+          if (isNaN(x)) {
+            return null;
+          }
+
+          return x;
+        }
+        return modelValue.valueOf();
+      }
+
+      return modelValue;
+    },
     when: function (constraint) {
       this.constraints.push(constraint);
       return this;
@@ -31,7 +69,17 @@
       return pass;
     },
     isValid: function (obj, value) {
-      return this.rule(obj, value);
+      var compareValue = this.getCompareValue(obj);
+      if (this.passOnNull && (compareValue.value === null || compareValue.value === undefined)) {
+        return true;
+      }
+
+      var modelValue = this.resolveModelValue(value, compareValue.isDate);
+      if (this.passOnNull && (modelValue === null || modelValue === undefined)) {
+        return true;
+      }
+
+      return this.rule(obj, modelValue, compareValue.value);
     },
     withMessage: function (msg, msgVars) {
       this.msg = msg;
@@ -74,16 +122,16 @@
 
       return msg;
     },
-    validateCollection: function (vc) {
-      vc = vc === undefined ? true : vc;
-      this.runForCollection = vc;
+    validateCollection: function (runForEachItem) {
+      runForEachItem = runForEachItem === undefined ? true : runForEachItem;
+      this.runForEachItem = runForEachItem;
     },
     run: function (obj, value) {
       var result = { error: false };
       var canRun = this.canRun(obj);
       var isValid;
       if (canRun) {
-        if (value instanceof Array && !this.runForCollection) {
+        if (value instanceof Array && this.runForEachItem) {
           result = [];
           result.error = false;
 
@@ -172,22 +220,20 @@
 
   ValidatorRule.prototype.notEmpty = function () {
     var component = new ValidatorRuleComponent('notEmpty', function (obj, value) {
-      if (value instanceof Array) {
-        return value !== null && value.length > 0;
-      }
-      else {
-        return value !== null && value !== '';
-      }
-    });
+      return value !== null && value !== 0 && value !== '';
+    }, { passOnNull: false, convertArrayToLength: true });
 
     this.addComponent(component);
     return component;
   };
 
   ValidatorRule.prototype.minLength = function (minLength) {
-    var component = new ValidatorRuleComponent('minLength', function (obj, value) {
-      return value === null || value.length >= minLength;
-    });
+    var component = new ValidatorRuleComponent('minLength', function (obj, modelValue, compareValue) {
+      if (typeof modelValue === 'string'){
+        modelValue = modelValue.length;
+      }
+      return modelValue >= compareValue;
+    }, { passOnNull: true, compareValue: minLength });
     component.msgArgs = [minLength];
     component.msgVars = function () { return [minLength]; };
 
@@ -196,9 +242,12 @@
   };
 
   ValidatorRule.prototype.maxLength = function (maxLength) {
-    var component = new ValidatorRuleComponent('maxLength', function (obj, value) {
-      return value === null || value.length <= maxLength;
-    });
+    var component = new ValidatorRuleComponent('maxLength', function (obj, modelValue, compareValue) {
+      if (typeof modelValue === 'string'){
+        modelValue = modelValue.length;
+      }
+      return modelValue <= compareValue;
+    }, { passOnNull: true, compareValue: maxLength });
     component.msgArgs = [maxLength];
     component.msgVars = function () { return [maxLength]; };
 
@@ -207,14 +256,9 @@
   };
 
   ValidatorRule.prototype.matches = function matches(compareTo) {
-    var component = new ValidatorRuleComponent('matches', function (obj, value) {
-      if (compareTo instanceof Function) {
-        return value === null || value === compareTo(obj);
-      }
-      else {
-        return value === null || value === compareTo;
-      }
-    });
+    var component = new ValidatorRuleComponent('matches', function (obj, modelValue, compareValue) {
+      return modelValue === compareValue;
+    }, { passOnNull: true, compareValue: compareTo });
 
     component.msgArgs = [compareTo];
     component.msgVars = function (obj) { return [compareTo instanceof Function ? compareTo(obj) : compareTo]; };
@@ -224,23 +268,10 @@
   };
 
   ValidatorRule.prototype.min = function (minValue) {
-    var component = new ValidatorRuleComponent('min', function (obj, value) {
-      if (value === null) {
-        return true;
-      }
+    var component = new ValidatorRuleComponent('min', function (obj, modelValue, compareValue) {
+      return modelValue >= compareValue;
+    }, { passOnNull: true, compareValue: minValue });
 
-      if (value instanceof Array) {
-        value = value.length;
-      }
-
-      if (minValue instanceof Function) {
-        var mv = minValue(obj);
-        return mv === undefined || value >= mv;
-      }
-      else {
-        return value >= minValue;
-      }
-    });
     component.msgArgs = [minValue];
     component.msgVars = function () { return [minValue]; };
 
@@ -249,23 +280,9 @@
   };
 
   ValidatorRule.prototype.max = function (maxValue) {
-    var component = new ValidatorRuleComponent('max', function (obj, value) {
-      if (value === null) {
-        return true;
-      }
-
-      if (value instanceof Array) {
-        value = value.length;
-      }
-
-      if (maxValue instanceof Function) {
-        var mv = maxValue(obj);
-        return mv === undefined || value >= mv;
-      }
-      else {
-        return value <= maxValue;
-      }
-    });
+    var component = new ValidatorRuleComponent('max', function (obj, modelValue, compareValue) {
+      return modelValue <= compareValue;
+    }, { passOnNull: true, compareValue: maxValue });
     component.msgArgs = [maxValue];
     component.msgVars = function () { return [maxValue]; };
 
