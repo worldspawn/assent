@@ -13,7 +13,9 @@
     "node_modules",
     "bower_components",
     "test",
-    "tests"
+    "tests",
+    "*.spec.js",
+    "*.conf.js"
   ],
   "dependencies": {},
   "devDependencies": {}
