@@ -32,7 +32,7 @@
     .withMessage('username is required');
 });</code></pre>
 
-<h4><a id="email" class="anchor" href="#notEmpty" aria-hidden="true"><span class="octicon octicon-link"></span></a>email</h4>
+<h4><a id="email" class="anchor" href="#email" aria-hidden="true"><span class="octicon octicon-link"></span></a>email</h4>
 
 <p><code>email</code> can target text fields. It performs a basic check for a <code>email@domain</code> style value.</p>
 
@@ -40,6 +40,19 @@
   f.email()
     .withMessage('must be a valid email');
 });</code></pre>
+
+<h4><a id="regex" class="anchor" href="#regex" aria-hidden="true"><span class="octicon octicon-link"></span></a>regex</h4>
+
+<p><code>regex</code> can target text fields. It returns true if the value matches the expression. You must provide a name for the rule.</p>
+
+<pre><code>c.ruleFor('notes', function (f) {
+  f.regex(/test/, 'foo')
+    .withMessage('notes must contain the word test');
+});</code></pre>
+
+<p>The result is set using the provided name. This allows you to specify multiple expressions.</p>
+
+<pre><code>result.notes.foo.error === true</code></pre>
 
 <h4><a id="minLength" class="anchor" href="#minLength" aria-hidden="true"><span class="octicon octicon-link"></span></a>minLength</h4>
 
