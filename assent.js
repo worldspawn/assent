@@ -176,7 +176,7 @@ var validation =
       this.components.push(component);
     },
     validate: function (obj, value) {
-      var results = {};
+      var results = { error: false };
       for (var component in this.components) {
         if (!this.components.hasOwnProperty(component)) {
           continue;
@@ -184,17 +184,24 @@ var validation =
 
         var c = this.components[component];
         results[c.name] = c.run(obj, value);
+        if (results[c.name].error) {
+          results.error = true;
+        }
       }
 
       return results;
     }
   };
 
-  function Validator (config) {
+  function Validator (config, constructor) {
     this.rules = {};
+    this.nesteds = [];
     this.errors = {};
     if (config) {
       config(this);
+    }
+    if (constructor) {
+      this.applyTo(constructor);
     }
   }
 
@@ -204,6 +211,9 @@ var validation =
       config(rule);
       return rule;
     },
+    registerNested: function(target) {
+      this.nesteds.push(target);
+    },
     applyTo: function (constructor) {
       constructor.prototype.$$validator = this;
       constructor.prototype.$validate = function () {
@@ -211,18 +221,40 @@ var validation =
       };
     },
     validate: function (obj) {
-      var errors = {};
-      for (var target in this.rules) {
+      var errors = {error: false};
+      var target;
+      for (target in this.rules) {
         if (!this.rules.hasOwnProperty(target)) {
           continue;
         }
 
         var results = this.rules[target].validate(obj, obj[target]);
         errors[target] = results;
+        if (results.error) {
+          errors.error = true;
+        }
       }
 
-      obj.$errors = errors;
-      return obj.$errors;
+      for (var i = 0; i < this.nesteds.length; i++) {
+        target = this.nesteds[i];
+
+        if (obj[target] && obj[target].$validate){
+          var r = obj[target].$validate();
+          if (!errors[target]) {
+            errors[target] = {};
+          }
+
+          for (var childField in r) {//if a validator name matched a field name we'd get a collision here
+            errors[target][childField] = r[childField];
+          }
+
+          if (r.error) {
+            errors.error = true;
+          }
+        }
+      }
+
+      return errors;
     }
   };
 

@@ -4,7 +4,7 @@
   "description": "validation js library",
   "main": "validation.js",
   "scripts": {
-    "test": "node .\\node_modules\\karma\\bin\\karma start"
+    "test": "node ./node_modules/karma/bin/karma start"
   },
   "author": "",
   "license": "ISC",

@@ -8,9 +8,19 @@
       var resources = createResources();
 
       beforeEach(function () {
-        //not using this in this spec... validator probably needs a way to recursively validate its fields if they have their own validator
         Address = resources.addressConstructorFactory(validation.Validator);
         UserCreate = resources.userConstructorFactory(validation.Validator, Address);
+      });
+
+      describe('nested validation', function () {
+        it ('should fail when nested validation fails', function () {
+          var user = new UserCreate();
+          var result = user.$validate(user);
+
+          expect(result).not.toBeUndefined();
+          expect(result.address.line1.notEmpty.error).toBe(true);
+          expect(result.error).toBe(true);
+        });
       });
 
       describe('collection validation', function () {

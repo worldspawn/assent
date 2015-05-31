@@ -7,14 +7,13 @@ function createResources() {
       this.postCode = null;
     }
 
-    var addressValidator = new Validator(function (c) {
+    new Validator(function (c) {
       c.ruleFor('line1', function (f) {
         f.notEmpty()
           .withMessage('line1 is required');
       });
-    });
+    }, Address);
 
-    addressValidator.applyTo(Address);
     return Address;
   }
 
@@ -103,9 +102,9 @@ function createResources() {
         f.regex(/test/, 'value')
           .withMessage('Notes must contain the word \'test\'');
       });
-    });
+    }, UserCreate);
 
-    userValidator.applyTo(UserCreate);
+    userValidator.registerNested('address');
     return UserCreate;
   }
 
