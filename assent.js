@@ -1,8 +1,33 @@
-var validation =
-(function () {
+this.assent = {};
+(function (ns) {
   'use strict';
 
-  function ValidatorRuleComponent(name, rule, options) { //function (obj, value) - return bool
+  /**
+  * Validator Component compare value callback
+  *
+  * @callback validatorCompareValueCallback
+  * @param {Object} obj - The object being validated
+  */
+
+  /**
+  * Validator Component rule callback.
+  *
+  * @callback validatorRuleCallback
+  * @param {Object} obj - The object being validated
+  * @param {Object|Object[]} modelValue - The value of the target field being validated. Can be anything, or an array of anything.
+  * @param {Object|Object[]|validatorCompareValueCallback} [compareValue] - An optional value provided if a value or function was provided at initialisation to compare against.
+  */
+
+  /**
+  * Defines a validation component to apply to a rule.
+  * @param {String} name - The name of the component, eg. notEmpty, minLength etc
+  * @param {validatorRuleCallback} rule - The rule (a function) to execute at validation time to determine if valid or not
+  * @param {Object} [options] - The component options
+  * @param {Object|Function} [options.compareValue] - A static value or function to be used by the rule function. If a function is provided the returned value is passed to the rule function (not the function itself).
+  * @param {boolean} [options.passOnNull=false] - If true when the target model value is null or undefined this rule component will pass
+  * @param {boolean} [options.convertArrayToLength=false] - If true when the model value is an array instead of the value being supplied to the rule function, the length of the array is provided instead. Useful for rules that target both strings and arrays.
+  */
+  function ValidatorRuleComponent(name, rule, options) {
     options = options || {};
     this.passOnNull = options.passOnNull === undefined ? true : options.passOnNull;
     this.runForEachItem = false;
@@ -10,10 +35,11 @@ var validation =
     this.convertArrayToLength = options.convertArrayToLength === undefined ? false : options.convertArrayToLength;
     this.name = name;
     this.rule = rule;
-    this.constraints = [];// function(obj) - return bool
+    this.constraints = [];
   }
 
   ValidatorRuleComponent.prototype = {
+    /** @private */
     getCompareValue: function (obj) {
       var value = this.compareValue;
       if (value === undefined) {
@@ -32,6 +58,7 @@ var validation =
 
       return { value: value, isDate: isDate };
     },
+    /** @private */
     resolveModelValue: function (modelValue, isDate) {
       if (!this.runForEachItem && this.convertArrayToLength && modelValue instanceof Array) {
         return modelValue.length;
@@ -52,10 +79,15 @@ var validation =
 
       return modelValue;
     },
+    /**
+    * Call this to apply a constraint. If the constraint does not pass the rule will not be run (and is considered valid).
+    * @param {Function} constraint - The function to add as a constraint. Must return true or false. It is passed the object being validated is it's only argument when called.
+    */
     when: function (constraint) {
       this.constraints.push(constraint);
       return this;
     },
+    /** @private */
     canRun: function (obj) {
       var pass = true;
       for (var constraint in this.constraints) {
@@ -71,6 +103,7 @@ var validation =
 
       return pass;
     },
+    /** @private */
     isValid: function (obj, value) {
       var compareValue = this.getCompareValue(obj);
       if (compareValue === undefined) {
@@ -89,6 +122,9 @@ var validation =
 
       return this.rule(obj, modelValue, compareValue.value);
     },
+    /**
+    * The validation message to display when a failure occurs
+    */
     withMessage: function (msg, msgVars) {
       this.msg = msg;
       if (msgVars !== undefined) {
@@ -113,6 +149,7 @@ var validation =
 
       return this;
     },
+    /** @private */
     getMessage: function (obj) {
       var msg = this.msg;
       if (this.$splitMsg) {
@@ -134,6 +171,7 @@ var validation =
       runForEachItem = runForEachItem === undefined ? true : runForEachItem;
       this.runForEachItem = runForEachItem;
     },
+    /** @private */
     run: function (obj, value) {
       var result = { error: false };
       var canRun = this.canRun(obj);
@@ -167,7 +205,12 @@ var validation =
     }
   };
 
+  /**
+  * Defines a validation rule. A validation rule is a collection of validation components to apply to a field.
+  * @constructor
+  */
   function ValidatorRule() {
+    /** @member {ValidatorRuleComponent[]} */
     this.components = [];
   }
 
@@ -193,6 +236,64 @@ var validation =
     }
   };
 
+  /**
+  * @constructor
+  */
+  function ValidationResult () {
+    /**
+    * True if one or more components failed validation.
+    * @member {boolean} error
+    */
+    this.error = false;
+  }
+
+  ValidationResult.prototype = {
+    addRuleResult: function (target, result) {
+      this[target] = result;
+      if (result.error === true) {
+        this.error = true;
+      }
+    },
+    addNestedResult: function (target, result) {
+      if (this[target] !== undefined) {
+        this[target] = {};
+      }
+
+      for (var childField in result) {//if a validator name matched a field name we'd get a collision here
+        this[target][childField] = result[childField];
+      }
+
+      if (result.error) {
+        this.error = true;
+      }
+    }
+  };
+
+  /**
+  * Validator configuration callback.
+  *
+  * @callback validatorCallback
+  * @param {Validator} validator - The validator instance to configure
+  */
+
+  /**
+  * Validator rule configuration callback
+  * @callback ruleCallback
+  * @param {ValidatorRule} rule - The validator rule instance to configure
+  */
+
+  /**
+  * Represents a on object validation rule
+  * @constructor
+  * @param {validatorCallback} [config] - A configuration function to call during initialisation
+  * @param {Function} [constructor] - The constructor to apply the validator to
+  * @example
+  * var userValidator = new Validator(function (c) {
+  *  c.ruleFor('username', function (f) {
+  *    f.notEmpty()
+  *      .withMessage('username is required');
+  *  }, User);
+  */
   function Validator (config, constructor) {
     this.rules = {};
     this.nesteds = [];
@@ -206,22 +307,42 @@ var validation =
   }
 
   Validator.prototype = {
+    /**
+    * Add and create a rule for the validator
+    * @param {String} target - The field (cannot be an expression) of the object to create a rule for
+    * @param {ruleCallback} config - The configuration callback used to configure the rule
+    * @returns {ValidatorRule}
+    */
     ruleFor: function(target, config) {
       var rule = this.rules[target] || (this.rules[target] = new ValidatorRule(target));
       config(rule);
       return rule;
     },
+    /**
+    * Register a field as a nested validator. The value of the field should be an object with a seperate validator definition.
+    * The results of the nested validator will be included in the parent validators results. Note you can still define rules for fields that are nested validators.
+    * @param {String} target - The field (cannot be an expression) of the object to conduct nested validation on.
+    */
     registerNested: function(target) {
       this.nesteds.push(target);
     },
+    /**
+    * Applies this validator to the provided object constructor. Adds a reference to this validator ($$validator) and $validate method  to the constructors prototype
+    * @param {Function} [constructor] - The constructor to apply the validator to
+    */
     applyTo: function (constructor) {
       constructor.prototype.$$validator = this;
       constructor.prototype.$validate = function () {
         return this.$$validator.validate(this);
       };
     },
+    /**
+    * Executes this validation instances rules against the target object
+    * @param {Object} obj - The object to validate
+    * @returns {ValidationResult}
+    */
     validate: function (obj) {
-      var errors = {error: false};
+      var errors = new ValidationResult();
       var target;
       for (target in this.rules) {
         if (!this.rules.hasOwnProperty(target)) {
@@ -229,10 +350,7 @@ var validation =
         }
 
         var results = this.rules[target].validate(obj, obj[target]);
-        errors[target] = results;
-        if (results.error) {
-          errors.error = true;
-        }
+        errors.addResult(target, results);
       }
 
       for (var i = 0; i < this.nesteds.length; i++) {
@@ -240,17 +358,7 @@ var validation =
 
         if (obj[target] && obj[target].$validate){
           var r = obj[target].$validate();
-          if (!errors[target]) {
-            errors[target] = {};
-          }
-
-          for (var childField in r) {//if a validator name matched a field name we'd get a collision here
-            errors[target][childField] = r[childField];
-          }
-
-          if (r.error) {
-            errors.error = true;
-          }
+          errors.addNestedResult(target, r);
         }
       }
 
@@ -268,7 +376,7 @@ var validation =
   };
 
   ValidatorRule.prototype.email = function () {
-    var rex = /^\S+@\S+\.\S+$/;//very basic email validation
+    var rex = ValidatorRule.prototype.email.rex;
     var component = new ValidatorRuleComponent('email', function (obj, value) {
       return rex.test(value);
     }, { passOnNull: true });
@@ -276,6 +384,9 @@ var validation =
     this.addComponent(component);
     return component;
   };
+
+
+  ValidatorRule.prototype.email.rex = /^\S+@\S+\.\S+$/;//very crap regex :'(
 
   ValidatorRule.prototype.regex = function (rex, name) {
     var component = new ValidatorRuleComponent(name, function (obj, value) {
@@ -349,9 +460,7 @@ var validation =
     return component;
   };
 
-  return {
-    Validator : Validator,
-    ValidatorRule: ValidatorRule,
-    ValidatorRuleComponent: ValidatorRuleComponent
-  };
-})();
+  ns.Validator = Validator;
+  ns.ValidatorRule = ValidatorRule;
+  ns.ValidatorRuleComponent = ValidatorRuleComponent;
+})(this.assent);

@@ -16,7 +16,7 @@ function Address() {
   this.postCode = null;
 }
 
-var addressValidator = new Validator(function (c) {
+var addressValidator = new assent.Validator(function (c) {
   c.ruleFor('line1', function (f) {
     f.notEmpty()
       .withMessage('line1 is required');
@@ -42,7 +42,7 @@ function UserCreate() {
   this.categories = [];
 }
 
-var userValidator = new Validator(function (c) {
+var userValidator = new assent.Validator(function (c) {
   c.ruleFor('username', function (f) {
     f.notEmpty()
       .withMessage('username is required');
@@ -126,8 +126,7 @@ This is for when `validationCollection` is not called, it will validate each ele
 [Angular](https://github.com/worldspawn/angular-assent)
 
 ### TODO
-- [ ] recursive validation
+- [ ] message interpolation feels a bit wonky with the msgVars and the msgArgs. msgVars are extra args to pass to msgArs that are then interpolated into the message string.
 - [ ] support returning promises from rule function
 - [ ] and perhaps some promise support for messages
 - [ ] and what the hey, promises for the when calls too! Promises! Promises!
-- [ ] message interpolation feels a bit wonky with the msgVars and the msgArgs. msgVars are extra args to pass to msgArs that are then interpolated into the message string.

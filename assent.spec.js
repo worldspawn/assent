@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  /* global describe, createResources, beforeEach, validation, it, expect */
+  /* global describe, createResources, beforeEach, assent, it, expect */
 
   describe('validation', function () {
     describe('for a model', function () {
@@ -8,8 +8,8 @@
       var resources = createResources();
 
       beforeEach(function () {
-        Address = resources.addressConstructorFactory(validation.Validator);
-        UserCreate = resources.userConstructorFactory(validation.Validator, Address);
+        Address = resources.addressConstructorFactory(assent.Validator);
+        UserCreate = resources.userConstructorFactory(assent.Validator, Address);
       });
 
       describe('nested validation', function () {
@@ -268,7 +268,7 @@
         });
 
         it ('should pass when compared with a constant that matches', function () {
-          var UC = resources.userConstructorFactory(validation.Validator, Address);
+          var UC = resources.userConstructorFactory(assent.Validator, Address);
           UC.prototype.$$validator.ruleFor('passwordConfirmation', function (f) {
             f.matches('password')
               .withMessage('password confirmation must match password');
@@ -283,7 +283,7 @@
         });
 
         it ('should fail when compared with a constant that does not match', function () {
-          var UC = resources.userConstructorFactory(validation.Validator, Address);
+          var UC = resources.userConstructorFactory(assent.Validator, Address);
           UC.prototype.$$validator.ruleFor('passwordConfirmation', function (f) {
             f.matches('password')
               .withMessage('password confirmation must match password');
